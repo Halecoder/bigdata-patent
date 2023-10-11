@@ -1,0 +1,45 @@
+GET http://localhost:8080/patentCountByYear1
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+<> 2023-10-11T000319.200.json
+
+###
+
+GET http://localhost:8080/patentCountByYear1
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+<> 2023-10-10T235902.200.json
+
+###
+
+GET http://localhost:8080/patentCountByYear1
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+<> 2023-10-10T235108.200.json
+
+###
+
+GET http://localhost:8080/patentCountByYear1
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+<> 2023-10-10T234559.200.json
+
+###
+
+GET http://localhost:8080/patentCountByYear1
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+<> 2023-10-10T233916.200.json
+
+###
+

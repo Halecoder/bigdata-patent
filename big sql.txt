@@ -1,0 +1,673 @@
+
+
+我Hive数据库有以下五张表： 
+美国专利基本信息表（updated_base_info）
+patent_id STRING COMMENT '专利ID',
+    patent_name STRING COMMENT '专利名称',
+    publication_number STRING COMMENT '专利申请公布号',
+    publication_date DATE COMMENT '专利申请公布日',
+    application_number STRING COMMENT '专利申请号',
+    application_date DATE COMMENT '专利申请日期',
+    grant_number STRING COMMENT '专利授权公告号',
+    grant_date DATE COMMENT '专利授权日期',
+    priority_date STRING COMMENT '专利优先权日',
+    inventors STRING COMMENT '专利发明人',
+    patent_holder STRING COMMENT '专利权人',
+    classification STRING COMMENT '分类号',
+    brief_description STRING COMMENT '简要说明',
+    claims_count INT COMMENT '专利权利要求数',
+    cited_patents_count INT COMMENT '引用其他专利次数',
+    cited_by_count INT COMMENT '专利被引用次数',
+    legal_status STRING COMMENT '法律状态'
+美国专利事务表(updated_affair)    
+ patent_id STRING COMMENT '专利ID',
+    serial_number INT COMMENT '序号',
+    event_type STRING COMMENT '事件类型',
+    event_date DATE COMMENT '日期',
+    event_code STRING COMMENT '代码',
+    event_description STRING COMMENT '描述'  
+    
+美国专利引用信息表(updated_citing_info)
+patent_id STRING, 
+    patent_name STRING, 
+    publication_number STRING,
+    publication_date DATE,
+    application_number STRING,
+    application_date DATE,
+    patent_holder STRING,
+    classification STRING,
+    cited_patent_name STRING,
+    cited_publication_number STRING,
+    cited_publication_date DATE,
+    cited_application_number STRING,
+    cited_application_date DATE,
+    cited_grant_number STRING,
+    cited_grant_date DATE,
+    cited_priority_date STRING,
+    cited_inventors STRING,
+    cited_patent_holder STRING,
+    cited_classification STRING,
+    cited_claims_count INT,
+    cited_cited_patents_count INT,
+    cited_cited_by_count INT,
+    cited_legal_status STRING,
+    cited_family_to_family_reference BOOLEAN,
+    added_by BOOLEAN 
+    
+对应字段名：
+    
+专利ID
+专利名称
+专利申请公布号
+专利申请公布日
+专利申请号
+专利申请日期
+专利权人
+分类号
+被引用专利名称
+被引用专利申请公布号
+被引用专利申请公布日
+被引用专利申请号
+被引用专利申请日期
+被引用专利授权公告号
+被引用专利授权日期
+被引用专利优先权日
+被引用专利发明人
+被引用专利专利权人
+被引用专利分类号
+被引用专利权利要求数
+被引用专利引用其他专利次数
+被引用专利被引用次数
+被引用专利法律状态
+被引用专利是否FamilytoFamily引用
+添加该被引用信息的主体
+
+美国专利被引信息表(updated_cited_info)
+ patent_id STRING,
+    patent_name STRING,
+    publication_number STRING,
+    publication_date DATE,
+    application_number STRING,
+    application_date DATE,
+    patent_holder STRING,
+    classification STRING,
+    cited_patent_name STRING,
+    cited_publication_number STRING,
+    cited_publication_date DATE,
+    cited_application_number STRING,
+    cited_application_date DATE,
+    cited_grant_number STRING,
+    cited_grant_date DATE,
+    cited_priority_date DATE,
+    cited_inventors STRING,
+    cited_patent_holder STRING,
+    cited_classification STRING,
+    cited_claims_count INT,
+    cited_cited_patents_count INT,
+    cited_cited_by_count INT,
+    cited_legal_status STRING,
+    cited_family_to_family_reference BOOLEAN,
+    added_by BOOLEAN
+    
+ 对应字段名：
+  
+  专利ID
+专利名称
+专利申请公布号
+专利申请公布日
+专利申请号
+专利申请日期
+专利权人
+分类号
+引用专利名称
+引用专利申请公布号
+引用专利申请公布日
+引用专利申请号
+引用专利申请日期
+引用专利授权公告号
+引用专利授权日期
+引用专利优先权日
+引用专利发明人
+引用专利专利权人
+引用专利分类号
+引用专利权利要求数
+引用专利引用其他专利次数
+引用专利被引用次数
+引用专利法律状态
+引用专利是否FamilytoFamily引用
+添加该引用信息的主体
+
+美国专利分类号表（updated_category）
+
+ patent_id STRING COMMENT '专利ID',
+    category_sequence_number INT COMMENT '分类号类别序号',
+    classification_number STRING COMMENT '分类号',
+    classification_description STRING COMMENT '分类号说明'
+    
+    
+请您提出一些有意义问题，便于我进行数据可视化，并且能够在社会中找到实际意义，能够从数据提取中发现什么意义，我给的所有表您都可以随便使用，以及连表使用，越高级越好，越有意义越好,将数据结果插入到res_hive数据库，并给出对应sql语句
+
+
+--1. 专利数量随时间的变化趋势是什么？ 折线图，以显示时间轴上的趋势变化
+
+SELECT
+    YEAR(publication_date) AS year,
+    COUNT(DISTINCT patent_id) AS patent_count
+FROM
+    dated_base_info
+GROUP BY
+    YEAR(publication_date)
+ORDER BY
+    year;
+   
+   
+ --2. 各个分类的专利数量是如何分布的？前十个主分类及其对应的专利数量分布 条形图或饼状图，用于比较不同分类下的专利数量
+
+SELECT
+    SUBSTRING_INDEX(classification, '||', 1) AS primary_classification,
+    COUNT(DISTINCT patent_id) AS patent_count
+FROM
+    dated_base_info
+GROUP BY
+    SUBSTRING_INDEX(classification, '||', 1)
+ORDER BY
+    patent_count DESC
+LIMIT 10;
+
+
+-- 3. 专利授权与专利申请之间的关系如何？ 堆积条形图或堆积折线图，以同时显示申请和授权数量
+SELECT
+    YEAR(application_date) AS year,
+    COUNT(DISTINCT patent_id) AS applied_count,
+    COUNT(DISTINCT grant_number) AS granted_count
+FROM
+    dated_base_info
+GROUP BY
+    YEAR(application_date)
+ORDER BY
+    year;
+
+ 
+-- 4. 专利法律状态的分布如何？ 查询前20条 饼状图或条形图，以显示不同法律状态的占比。
+   
+SELECT
+    legal_status,
+    COUNT(DISTINCT patent_id) AS patent_count
+FROM
+    dated_base_info
+GROUP BY
+    legal_status
+ORDER BY
+    patent_count DESC
+LIMIT 20;
+
+
+--分析专利法律状态的分布和专利事务的类型分布可以提供有关专利领域的有用信息，帮助您更好地理解专利数据并在决策制定中提供见解。以下是这两个分析的潜在意义和信息：
+--
+--专利法律状态的分布：
+--
+--知识产权策略制定：通过了解专利法律状态的分布，您可以确定公司或组织的专利资产的当前状态。这有助于决策制定者了解哪些专利需要维护、哪些可能需要放弃，以制定有效的知识产权策略。
+--
+--竞争情报：分析专利法律状态可以帮助您了解竞争对手的知识产权策略。例如，如果某个竞争对手的专利大多处于活跃状态，这可能表明他们在技术领域中具有强大的专利地位。
+--
+--预测法律风险：通过检查专利法律状态，您可以识别潜在的法律风险，例如即将到期的专利或可能涉及侵权的专利。这有助于您制定风险管理策略。
+--
+--专利事务的类型分布：
+--
+--知识产权战略：了解专利事务的类型分布可以帮助您识别组织在知识产权领域的活动类型。这有助于确定知识产权战略的重点领域和优先级。
+--
+--技术创新分析：专利事务类型分布可以反映不同技术领域的创新活动。通过分析事务类型，您可以了解哪些技术领域受到了更多的关注和投资。
+--
+--法律合规：分析专利事务类型可以帮助您确保组织在知识产权方面的活动合规。这有助于降低法律风险和维护知识产权的有效性。
+--
+--总之，分析专利法律状态和专利事务类型分布有助于组织制定更加有效的知识产权战略、了解市场趋势、管理法律风险以及促进技术创新。这些分析可以提供有关知识产权管理和技术创新的宝贵见解，有助于组织做出明智的决策。
+--   
+
+
+
+-- 5. 最受引用的专利是哪些? 词云图展示，以显示被引用次数最多的专利。
+   
+SELECT
+    cited_patent_name,
+    COUNT(DISTINCT patent_id) AS citation_count
+FROM
+    dated_citing_info
+WHERE
+    cited_patent_name IS NOT NULL AND cited_patent_name <> ''
+GROUP BY
+    cited_patent_name
+ORDER BY
+    citation_count DESC
+LIMIT 50;
+
+
+-- 6. FamilytoFamily引用在专利引用中的占比如何？ 饼状图，以显示FamilytoFamily引用和非FamilytoFamily引用的占比。
+
+SELECT
+    cited_family_to_family_reference,
+    COUNT(DISTINCT patent_id) AS reference_count
+FROM
+    dated_cited_info
+GROUP BY
+    cited_family_to_family_reference;
+
+--通过分析FamilytoFamily引用在专利引用中的占比，您可以得到以下信息：
+--
+--专利引用网络的复杂性：如果FamilytoFamily引用占较大比例，可能表示专利领域存在复杂的引用网络，其中专利彼此之间有多层的关联。
+--
+--技术创新的关联性：FamilytoFamily引用可能表示一组专利之间存在相关性，这些专利可能涵盖相似的技术领域或有共同的技术基础。这有助于了解技术创新的关联性和进展。
+--
+--专利家族的重要性：如果FamilytoFamily引用占较大比例，这可能表示某些专利家族在特定领域或行业中具有重要性，并且被其他专利引用作为先前工作的基础。
+--
+--知识产权策略的参考：了解FamilytoFamily引用的占比可以帮助公司或组织制定知识产权策略。如果专利家族非常重要，可能需要更多的投资来维护和扩展该家族。
+--
+--侵权和许可的可能性：FamilytoFamily引用还可以揭示潜在的侵权或许可机会。如果一家公司拥有与其他公司专利家族相关的专利，这可能导致侵权诉讼或许可协议的商机。
+--
+--总之，FamilytoFamily引用占比的分析可以提供有关专利引用网络和相关技术领域的见解，帮助组织更好地管理知识产权、了解市场趋势以及识别商业机会和风险。这可以指导决策者在知识产权和创新战略方面做出更明智的决策。
+   
+   
+
+
+-- 7. 这个问题可以帮助我们了解不同学科领域下的专利数量分布，从而识别哪些学科领域具有更多的专利创新活动，为社会科技发展提供指导意义
+SELECT SUBSTRING(classification, 1, 3) AS subject_code, COUNT(*) AS patent_count
+FROM dated_base_info
+GROUP BY SUBSTRING(classification, 1, 3)
+ORDER BY patent_count DESC
+LIMIT 10;
+
+-- 8. 哪些专利具有最长的优先权日历史？
+
+--分析结果：可以确定哪些专利具有最长的优先权历史，了解其在技术创新中的角色。
+
+SELECT
+    patent_id,
+    MAX(priority_date) AS max_priority_date
+FROM
+    dated_base_info
+GROUP BY
+    patent_id
+ORDER BY
+    max_priority_date DESC
+LIMIT 10;
+
+
+最大优先权日期（maxPriorityDate）： 最大优先权日期表示专利的最早优先权日期。这通常是专利申请日或提出专利权要求的日期。最大优先权日期对于确定专利的有效性和权利范围非常重要，因为它确定了专利权的先前性。如果其他人在同一技术领域在最大优先权日期之前公开了相关技术，那么专利权可能会受到影响。
+
+
+
+-- 9. 计算了每个公司的专利数量和引用数量。然后，查询将结果按总专利数量和总引用数量进行排序，并限制结果为前10条记录 条形图、散点图或气泡图。这种图表类型可以用于同时显示不同公司的专利数量和引用情况，帮助比较它们之间的数据。
+SELECT
+    patent_holder,
+    COUNT(DISTINCT patent_id) AS patent_count
+FROM
+    dated_base_info
+GROUP BY
+    patent_holder
+ORDER BY
+    patent_count DESC
+LIMIT 10;
+
+-- 10.专利法律状态随时间的变化如何 通过时间序列图表，可以观察专利法律状态的演变，帮助制定知识产权策略。可以通过制作多系列折线图或堆叠柱状图来呈现，以观察法律状态随时间的变化。
+
+SELECT
+    YEAR(grant_date) AS year,
+    legal_status,
+    COUNT(DISTINCT patent_id) AS patent_count
+FROM
+    dated_base_info
+GROUP BY
+    YEAR(grant_date), legal_status
+ORDER BY
+    year, legal_status
+LIMIT 5;
+
+
+-- 11. 分析专利授权的权利要求数量分布情况，绘制饼状图。
+
+   SELECT
+    COUNT(CASE WHEN claims_count = 1 THEN 1 ELSE NULL END) AS claims_1,
+    COUNT(CASE WHEN claims_count = 2 THEN 1 ELSE NULL END) AS claims_2,
+    COUNT(CASE WHEN claims_count = 3 THEN 1 ELSE NULL END) AS claims_3,
+    COUNT(CASE WHEN claims_count >= 4 THEN 1 ELSE NULL END) AS claims_4_or_more
+FROM
+    dated_base_info;
+
+-- 饼状图可以显示不同权利要求数量范围的专利的相对比例。例如，您可能会得到以下分布情况：
+--
+--单一权利要求（1项权利要求）：占总专利数量的30%。
+--两项权利要求（2项权利要求）：占总专利数量的25%。
+--三项权利要求（3项权利要求）：占总专利数量的20%。
+--四项或更多权利要求：占总专利数量的25%。
+--通过这个分布情况，您可以了解到大多数专利是单一权利要求还是具有更复杂的权利要求结构。这有助于评估专利的技术复杂性和创新深度，以及在特定领域中的技术趋势。例如，单一权利要求的专利可能更倾向于基础技术，而多项权利要求的专利可能涉及更复杂的发明。这些信息对于技术评估、竞争分析和创新战略制定都具有重要价值。
+--
+
+   
+   -- 12. 分析引用其他专利的次数分布，绘制直方图。 这个查询将返回引用其他专利的次数分布和相应的专利数量，可以使用这些数据生成直方图来展示引用次数的分布情况。
+   SELECT
+    cited_cited_patents_count AS citation_count,
+    COUNT(DISTINCT patent_id) AS patent_count
+FROM
+    dated_cited_info
+GROUP BY
+    cited_cited_patents_count
+ORDER BY
+    cited_cited_patents_count;
+--   
+--   引用次数分布：您可以了解到专利引用其他专利的频率分布。这有助于识别哪些专利引用其他专利较多，哪些引用较少。
+--引用集中性：您可以看到是否存在少数专利引用大多数其他专利，或者引用分散在多个专利之间。这有助于了解专利引用网络的结构。
+--引用异常情况：您可以识别出引用次数异常高或异常低的专利，这些专利可能具有特殊的技术或商业价值。
+--   
+   
+   
+   
+ -- 13. 探索专利授权与发明人之间的关系，绘制散点图。
+   SELECT
+    COUNT(DISTINCT patent_id) AS patent_count,
+    inventors
+FROM
+    dated_base_info
+GROUP BY
+    inventors
+ORDER BY
+    patent_count
+
+--发明人数量与专利数量关系：您可以观察到不同发明人数量与专利数量之间的关系。某些专利可能由单一发明人创造，而其他可能由多个发明人共同创造。
+--发明人活跃度：您可以了解哪些发明人在授权的专利数量方面表现出较高的活跃度。这些发明人可能在特定领域或技术领域有重要贡献。
+--聚类情况：散点图可能会显示出一些聚类，即一组发明人共同创造多个专利。这些聚类可能对某一领域的创新具有重要影响。
+
+
+
+
+
+
+
+
+
+
+-- 这个查询会计算每10年的专利申请数量，然后按照年代顺序进行排序。结果会包括每个10年期间的起始年份和结束年份，以及在该时间范围内的专利申请数量。
+--CREATE TABLE IF NOT EXISTS patent_decade_counts (
+--  decade STRING,
+--  patent_count INT
+--);
+--  
+--
+--INSERT INTO TABLE patent_decade_counts
+--SELECT
+--  CONCAT(YEAR(application_date) - YEAR(application_date) % 10, '-', YEAR(application_date) - YEAR(application_date) % 10 + 9) AS decade,
+--  COUNT(*) AS patent_count
+--FROM
+--  db_dated.dated_base_info
+--GROUP BY
+--  CONCAT(YEAR(application_date) - YEAR(application_date) % 10, '-', YEAR(application_date) - YEAR(application_date) % 10 + 9)
+--ORDER BY
+--  decade;
+--
+-- 
+
+-- 创建表1：patent_count_by_year_1
+CREATE TABLE res_hive.patent_count_by_year_1 (
+    year INT COMMENT '年份',
+    patent_count INT COMMENT '专利数量'
+)
+
+-- 插入数据
+INSERT INTO TABLE res_hive.patent_count_by_year_1
+SELECT
+    YEAR(publication_date) AS year,
+    COUNT(DISTINCT patent_id) AS patent_count
+FROM
+    db_dated.dated_base_info
+GROUP BY
+    YEAR(publication_date)
+ORDER BY
+    year;
+
+-- 创建表2：patent_count_by_classification_2
+CREATE TABLE res_hive.patent_count_by_classification_2 (
+    primary_classification STRING COMMENT '主分类',
+    patent_count INT COMMENT '专利数量'
+);
+
+INSERT INTO TABLE res_hive.patent_count_by_classification_2
+SELECT
+    SUBSTRING_INDEX(classification, '||', 1) AS primary_classification,
+    COUNT(DISTINCT patent_id) AS patent_count
+FROM
+    db_dated.dated_base_info
+GROUP BY
+    SUBSTRING_INDEX(classification, '||', 1)
+ORDER BY
+    patent_count DESC
+LIMIT 10;
+
+
+-- 创建表3：patent_applied_vs_granted_3
+CREATE TABLE res_hive.patent_applied_vs_granted_3 (
+    year INT COMMENT '年份',
+    applied_count INT COMMENT '申请数量',
+    granted_count INT COMMENT '授权数量'
+);
+
+INSERT INTO TABLE res_hive.patent_applied_vs_granted_3
+SELECT
+    YEAR(application_date) AS year,
+    COUNT(DISTINCT patent_id) AS applied_count,
+    COUNT(DISTINCT grant_number) AS granted_count
+FROM
+    db_dated.dated_base_info
+GROUP BY
+    YEAR(application_date)
+ORDER BY
+    year;
+
+   
+-- 创建表4：patent_legal_status_distribution_4
+CREATE TABLE res_hive.patent_legal_status_distribution_4 (
+    legal_status STRING COMMENT '法律状态',
+    patent_count INT COMMENT '专利数量'
+);
+
+
+INSERT INTO TABLE res_hive.patent_legal_status_distribution_4
+SELECT
+    legal_status,
+    COUNT(DISTINCT patent_id) AS patent_count
+FROM
+    db_dated.dated_base_info
+GROUP BY
+    legal_status
+ORDER BY
+    patent_count DESC
+LIMIT 20;
+   
+
+-- 创建表5：most_cited_patents_5
+CREATE TABLE res_hive.most_cited_patents_5 (
+    cited_patent_name STRING COMMENT '被引用专利名称',
+    citation_count INT COMMENT '引用次数'
+);
+
+INSERT INTO TABLE res_hive.most_cited_patents_5
+SELECT
+    cited_patent_name,
+    COUNT(DISTINCT patent_id) AS citation_count
+FROM
+    db_dated.dated_citing_info
+WHERE
+    cited_patent_name IS NOT NULL AND cited_patent_name <> ''
+GROUP BY
+    cited_patent_name
+ORDER BY
+    citation_count DESC
+LIMIT 50;
+
+
+-- 创建表6：family_to_family_reference_6
+CREATE TABLE res_hive.family_to_family_reference_6 (
+    cited_family_to_family_reference STRING COMMENT 'FamilytoFamily引用类型',
+    reference_count INT COMMENT '引用数量'
+);
+
+
+INSERT INTO TABLE res_hive.family_to_family_reference_6
+SELECT
+    cited_family_to_family_reference,
+    COUNT(DISTINCT patent_id) AS reference_count
+FROM
+    db_dated.dated_cited_info
+GROUP BY
+    cited_family_to_family_reference;
+   
+
+   
+-- 创建表7：patent_count_by_subject_code_7
+CREATE TABLE res_hive.patent_count_by_subject_code_7 (
+    subject_code STRING COMMENT '学科领域代码',
+    patent_count INT COMMENT '专利数量'
+);
+
+INSERT INTO TABLE res_hive.patent_count_by_subject_code_7
+SELECT
+    SUBSTRING(classification, 1, 3) AS subject_code,
+    COUNT(*) AS patent_count
+FROM
+    db_dated.dated_base_info
+GROUP BY
+    SUBSTRING(classification, 1, 3)
+ORDER BY
+    patent_count DESC
+LIMIT 10;
+   
+
+-- 创建表8：max_priority_date_by_patent_8
+CREATE TABLE res_hive.max_priority_date_by_patent_8 (
+    patent_id STRING COMMENT '专利ID',
+    max_priority_date STRING COMMENT '最大优先权日期'
+);
+
+INSERT INTO TABLE res_hive.max_priority_date_by_patent_8
+SELECT
+    patent_id,
+    MAX(priority_date) AS max_priority_date
+FROM
+    db_dated.dated_base_info
+GROUP BY
+    patent_id
+ORDER BY
+    max_priority_date DESC
+LIMIT 10;
+
+
+-- 创建表9：patent_count_and_citation_by_company_9
+CREATE TABLE res_hive.patent_count_by_company_9 (
+    patent_holder STRING COMMENT '专利持有公司',
+    patent_count INT COMMENT '专利数量'
+);
+
+INSERT INTO TABLE res_hive.patent_count_by_company_9
+SELECT
+    patent_holder,
+    COUNT(DISTINCT patent_id) AS patent_count
+FROM
+    db_dated.dated_base_info
+GROUP BY
+    patent_holder
+ORDER BY
+    patent_count DESC
+LIMIT 10;
+
+
+
+-- 创建表10：legal_status_change_over_time_10
+CREATE TABLE res_hive.legal_status_change_over_time_10 (
+    year INT COMMENT '年份',
+    legal_status STRING COMMENT '法律状态',
+    patent_count INT COMMENT '专利数量'
+);
+
+INSERT INTO TABLE res_hive.legal_status_change_over_time_10
+SELECT
+    YEAR(grant_date) AS year,
+    legal_status,
+    COUNT(DISTINCT patent_id) AS patent_count
+FROM
+    db_dated.dated_base_info
+GROUP BY
+    YEAR(grant_date), legal_status
+ORDER BY
+    year, legal_status
+LIMIT 5;
+
+-- 创建表11：claims_count_distribution_11
+CREATE TABLE res_hive.claims_count_distribution_11 (
+    claims_count_category STRING COMMENT '权利要求数量范围',
+    patent_count INT COMMENT '专利数量'
+);
+
+INSERT INTO TABLE res_hive.claims_count_distribution_11
+SELECT
+    claims_count_category,
+    COUNT(*) AS patent_count
+FROM
+    (SELECT
+        CASE
+            WHEN claims_count = 1 THEN '1'
+            WHEN claims_count = 2 THEN '2'
+            WHEN claims_count = 3 THEN '3'
+            WHEN claims_count >= 4 THEN '4+'
+        END AS claims_count_category
+    FROM
+        db_dated.dated_base_info) AS subquery
+GROUP BY
+    claims_count_category;
+
+   
+   
+   -- 创建表12：citation_count_distribution_12
+CREATE TABLE res_hive.citation_count_distribution_12 (
+    citation_count INT COMMENT '引用次数',
+    patent_count INT COMMENT '专利数量'
+);
+
+
+INSERT INTO TABLE res_hive.citation_count_distribution_12
+SELECT
+    cited_cited_patents_count AS citation_count,
+    COUNT(DISTINCT patent_id) AS patent_count
+FROM
+    db_dated.dated_cited_info
+GROUP BY
+    cited_cited_patents_count
+ORDER BY
+    cited_cited_patents_count;
+   
+   
+   
+ -- 创建表13：inventor_patent_relationship_13
+CREATE TABLE res_hive.inventor_patent_relationship_13 (
+    patent_count INT COMMENT '专利数量',
+    inventors STRING COMMENT '发明人'
+);
+
+INSERT INTO TABLE res_hive.inventor_patent_relationship_13
+SELECT
+    COUNT(DISTINCT patent_id) AS patent_count,
+    inventors
+FROM
+    db_dated.dated_base_info
+GROUP BY
+    inventors
+ORDER BY
+    patent_count
+  
+
+
+
+
+
+
+
+
+
+
+
