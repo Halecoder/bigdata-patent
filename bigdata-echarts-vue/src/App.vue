@@ -1,5 +1,5 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
+import { RouterLink, RouterView } from "vue-router";
 </script>
 
 <template>
@@ -15,7 +15,13 @@ import { RouterLink, RouterView } from 'vue-router'
     </div>
   </header> -->
 
-  <RouterView />
+  <!-- <RouterView /> -->
+
+  <router-view class="router-view" v-slot="{ Component }">
+    <transition :name="transitionName">
+      <component :is="Component" />
+    </transition>
+  </router-view>
 </template>
 
 <style scoped>

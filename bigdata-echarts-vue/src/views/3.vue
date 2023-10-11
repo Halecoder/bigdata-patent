@@ -1,22 +1,17 @@
 <template>
   <!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
 
-  <div id="main" style="width: 600px; height: 600px"></div>
-  <el-container>
-    <el-container>
-      <el-main>
-        <v-chart class="chart" v-if="option" :option="option" />
-      </el-main>
-    </el-container>
-  </el-container>
-  <el-aside width="200px">
-    <vuetyped
-      :strings="['面试官你好 我叫刘凯利', '来自天津']"
-      :loop="false"
-      :smart-backspace="true"
-    >
-      <div class="typing" /> </vuetyped
-  ></el-aside>
+  <div id="main" style="width: 600px; height: 400px"></div>
+
+  <v-chart class="chart" v-if="option" :option="option" />
+
+  <vuetyped
+    :strings="['3. 专利授权与专利申请之间的关系如何？']"
+    :loop="false"
+    :smart-backspace="true"
+  >
+    <div class="typing" />
+  </vuetyped>
 </template>
 
 <script setup>
@@ -102,3 +97,15 @@ function renderChart() {
   }
 }
 </script>
+<style scoped>
+#main {
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+.typing {
+  font-size: 30px;
+  font-weight: 600;
+  color: #409eff;
+  margin-top: -200px;
+  margin-left: 50px;
+}
+</style>

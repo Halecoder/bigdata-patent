@@ -9,7 +9,8 @@ for (let i = 1; i <= 13; i++) {
   routes.push({
     path: `/${i}`,
     name: `${i}`,
-    component: () => import(`../views/${i}.vue`)
+    component: () => import(`../views/${i}.vue`),
+    meta: { index: i } // 用于判断
   });
 }
 

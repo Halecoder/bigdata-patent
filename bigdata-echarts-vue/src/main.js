@@ -7,7 +7,6 @@ import vuetyped from 'vue3typed'
 import ElementPlus from 'element-plus'
 import 'element-plus/theme-chalk/index.css'
 
-
 // 设置Vue3的全局方法实例
 // 代替Vue2的 Vue.use的全局方法
 const app = createApp(App)
