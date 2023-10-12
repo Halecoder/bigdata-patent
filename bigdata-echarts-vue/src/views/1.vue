@@ -12,7 +12,6 @@
   >
     <div class="typing" />
   </vuetyped>
-
 </template>
 
 <script setup>

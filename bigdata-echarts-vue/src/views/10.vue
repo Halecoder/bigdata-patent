@@ -1,12 +1,12 @@
 <template>
   <!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
 
-  <div id="main" style="width: 1000px; height: 400px"></div>
+  <div id="main" style="width: 600px; height: 400px"></div>
 
   <v-chart class="chart" v-if="option" :option="option" />
 
   <vuetyped
-    :strings="['10. 专利法律状态随时间的变化如何？']"
+    :strings="['11. 分析专利授权的权利要求数量分布情况']"
     :loop="false"
     :smart-backspace="true"
   >
@@ -22,8 +22,8 @@ import * as echarts from "echarts/core";
 import VChart, { THEME_KEY } from "vue-echarts";
 import { provide, ref, onMounted } from "vue";
 
-import { get10Data } from "../api/api.js";
-import { mapToValueMap10, proxyToArray } from "../utils/utils.js";
+import { get11Data } from "../api/api.js";
+import { mapToValueMap11, proxyToArray } from "../utils/utils.js";
 
 var option;
 
@@ -31,28 +31,65 @@ const charData = ref([]);
 provide(THEME_KEY, "light");
 
 onMounted(async () => {
-  const { data } = await get10Data();
-  charData.value = mapToValueMap10(data.data);
+  const { data } = await get11Data();
+  charData.value = mapToValueMap11(data.data);
 
   console.log(charData.value);
 
   option = {
-    legend: {},
-    tooltip: {},
-    dataset: {
-      dimensions: ["legalStatus", "1911", "2017", "2018"],
-      source: [
-        { legalStatus: "US - Expired - Lifetime", 1911: 167, 2017: 150, 2018: 93.7 },
-        { legalStatus: "AR - SI - Active ", 1911: 83.1, 2017: 73.4, 2018: 55.1 },
-        { legalStatus: "AR - Active Active Active", 1911: 86.4, 2017: 65.2, 2018: 82.5 },
-        { legalStatus: "AR - Pending  ", 1911: 72.4, 2017: 53.9, 2018: 39.1 },
-      ],
+    tooltip: {
+      trigger: "item",
     },
-    xAxis: { type: "category" },
-    yAxis: {},
-    // Declare several bar series, each will be mapped
-    // to a column of dataset.source by default.
-    series: [{ type: "bar" }, { type: "bar" }, { type: "bar" }],
+    legend: {
+      top: "5%",
+      left: "center",
+      // doesn't perfectly work with our tricks, disable it
+      selectedMode: false,
+    },
+    series: [
+      {
+        name: "Access From",
+        type: "pie",
+        radius: ["40%", "70%"],
+        center: ["50%", "70%"],
+        // adjust the start angle
+        startAngle: 180,
+        label: {
+          show: true,
+          formatter(param) {
+            // correct the percentage
+            return param.name + " (" + param.percent * 2 + "%)";
+          },
+        },
+        data: [
+          //   proxyToArray(charData.value),
+
+          { name: null, value: 1517 },
+
+          { name: "1", value: 16 },
+
+          { name: "2", value: 20 },
+
+          { name: "3", value: 28 },
+
+          { name: "4+", value: 1419 },
+          {
+            // make an record to fill the bottom 50%
+            value: 1517 + 16 + 20 + 28 + 1419,
+            itemStyle: {
+              // stop the chart from rendering this piece
+              color: "none",
+              decal: {
+                symbol: "none",
+              },
+            },
+            label: {
+              show: false,
+            },
+          },
+        ],
+      },
+    ],
   };
   renderChart();
 });

@@ -1,98 +1,81 @@
 <template>
-    <!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
+  <!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
 
-    <div id="main" style="width: 600px; height: 400px"></div>
+  <div id="main" style="width: 1000px; height: 400px"></div>
 
-    <v-chart class="chart" v-if="option" :option="option" />
+  <v-chart class="chart" v-if="option" :option="option" />
 
-    <vuetyped
-      :strings="['9. 专利数量靠前公司排名']"
-      :loop="false"
-      :smart-backspace="true"
-    >
-      <div class="typing" />
-    </vuetyped>
-  </template>
+  <vuetyped
+    :strings="['10. 专利法律状态随时间的变化如何？']"
+    :loop="false"
+    :smart-backspace="true"
+  >
+    <div class="typing" />
+  </vuetyped>
+</template>
 
-  <script setup>
-  import "echarts";
+<script setup>
+import "echarts";
 
-  import "echarts-wordcloud";
+import * as echarts from "echarts/core";
 
-  import * as echarts from "echarts/core";
+import VChart, { THEME_KEY } from "vue-echarts";
+import { provide, ref, onMounted } from "vue";
 
-  import VChart, { THEME_KEY } from "vue-echarts";
-  import { provide, ref, onMounted } from "vue";
+import { get10Data } from "../api/api.js";
+import { mapToValueMap10, proxyToArray } from "../utils/utils.js";
 
-  import { get9Data } from "../api/api.js";
-  import { mapToValueMap9, proxyToArray } from "../utils/utils.js";
+var option;
 
-  var option;
+const charData = ref([]);
+provide(THEME_KEY, "light");
 
-  const charData = ref([]);
-  provide(THEME_KEY, "light");
+onMounted(async () => {
+  const { data } = await get10Data();
+  charData.value = mapToValueMap10(data.data);
 
-  // 随机颜色
-  let randcolor = () => {
-    let r = 100 + ~~(Math.random() * 100);
-    let g = 135 + ~~(Math.random() * 100);
-    let b = 100 + ~~(Math.random() * 100);
-    return `rgb(${r}, ${g}, ${b})`;
-  };
+  console.log(charData.value);
 
-  onMounted(async () => {
-    const { data } = await get9Data();
-    charData.value = mapToValueMap9(data.data);
-
-    console.log(charData.value);
-
-    option = {
-      series: [
-        {
-          type: "wordCloud",
-          //maskImage: maskImage,
-          sizeRange: [15, 80],
-          rotationRange: [0, 0],
-          rotationStep: 45,
-          gridSize: 10,
-          shape: "pentagon",
-          width: "100%",
-          height: "50%",
-          textStyle: {
-            color: (params) => {
-              return randcolor();
-            },
-            emphasis: {
-              shadowBlur: 10,
-              shadowColor: "#333",
-            },
-          },
-          data: proxyToArray(charData.value),
-        },
+  option = {
+    legend: {},
+    tooltip: {},
+    dataset: {
+      dimensions: ["legalStatus", "1911", "2017", "2018"],
+      source: [
+        { legalStatus: "US - Expired - Lifetime", 1911: 167, 2017: 150, 2018: 93.7 },
+        { legalStatus: "AR - SI - Active ", 1911: 83.1, 2017: 73.4, 2018: 55.1 },
+        { legalStatus: "AR - Active Active Active", 1911: 86.4, 2017: 65.2, 2018: 82.5 },
+        { legalStatus: "AR - Pending  ", 1911: 72.4, 2017: 53.9, 2018: 39.1 },
       ],
-    };
-    renderChart();
-  });
+    },
+    xAxis: { type: "category" },
+    yAxis: {},
+    // Declare several bar series, each will be mapped
+    // to a column of dataset.source by default.
+    series: [{ type: "bar" }, { type: "bar" }, { type: "bar" }],
+  };
+  renderChart();
+});
 
-  // 在这里定义渲染图表的函数
-  function renderChart() {
-    // 确保 option 有值后再渲染图表
-    if (option) {
-      // 在这里执行渲染图表的操作
-      const chart = echarts.init(document.getElementById("main"));
-      chart.setOption(option);
-    }
+// 在这里定义渲染图表的函数
+function renderChart() {
+  // 确保 option 有值后再渲染图表
+  if (option) {
+    // 在这里执行渲染图表的操作
+    const chart = echarts.init(document.getElementById("main"));
+    chart.setOption(option);
   }
-  </script>
-  <style scoped>
-  #main {
-    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
-  }
-  .typing {
-    font-size: 30px;
-    font-weight: 600;
-    color: #409eff;
-    margin-top: -200px;
-    margin-left: 50px;
-  }
-  </style>
+}
+</script>
+<style scoped>
+#main {
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+.typing {
+  font-size: 30px;
+  font-weight: 600;
+  color: #409eff;
+  margin-top: -200px;
+  margin-left: 50px;
+}
+</style>

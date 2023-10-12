@@ -1,90 +1,98 @@
 <template>
-  <!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
+    <!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
 
-  <div id="main" style="width: 600px; height: 600px"></div>
-  <el-container>
-    <el-container>
-      <el-main>
-        <v-chart class="chart" v-if="option" :option="option" />
-      </el-main>
-    </el-container>
-  </el-container>
-  <el-aside width="200px">
+    <div id="main" style="width: 600px; height: 400px"></div>
+
+    <v-chart class="chart" v-if="option" :option="option" />
+
     <vuetyped
-      :strings="['面试官你好 我叫刘凯利', '来自天津']"
+      :strings="['9. 专利数量靠前公司排名']"
       :loop="false"
       :smart-backspace="true"
     >
-      <div class="typing" /> </vuetyped
-  ></el-aside>
-</template>
+      <div class="typing" />
+    </vuetyped>
+  </template>
 
-<script setup>
-import "echarts";
+  <script setup>
+  import "echarts";
 
-import * as echarts from "echarts/core";
+  import "echarts-wordcloud";
 
-import VChart, { THEME_KEY } from "vue-echarts";
-import { provide, ref, onMounted } from "vue";
+  import * as echarts from "echarts/core";
 
-import { get8Data } from "../api/api.js";
-import { mapToValueMap8, proxyToArray } from "../utils/utils.js";
+  import VChart, { THEME_KEY } from "vue-echarts";
+  import { provide, ref, onMounted } from "vue";
 
-var option;
+  import { get9Data } from "../api/api.js";
+  import { mapToValueMap9, proxyToArray } from "../utils/utils.js";
 
-const charData = ref([]);
-provide(THEME_KEY, "light");
+  var option;
 
-onMounted(async () => {
-  const { data } = await get8Data();
-  charData.value = mapToValueMap8(data.data);
+  const charData = ref([]);
+  provide(THEME_KEY, "light");
 
-  console.log(charData.value);
-
-  option = {
-    title: {
-      text: "专利最大授权日前十",
-    },
-    legend: {
-      data: ["Allocated Budget", "Actual Spending"],
-    },
-    radar: {
-      // shape: 'circle',
-      indicator: [
-        { name: "Sales", max: 6500 },
-        { name: "Administration", max: 16000 },
-        { name: "Information Technology", max: 30000 },
-        { name: "Customer Support", max: 38000 },
-        { name: "Development", max: 52000 },
-        { name: "Marketing", max: 25000 },
-      ],
-    },
-    series: [
-      {
-        name: "Budget vs spending",
-        type: "radar",
-        data: [
-          {
-            value: [4200, 3000, 20000, 35000, 50000, 18000],
-            name: "Allocated Budget",
-          },
-          {
-            value: [5000, 14000, 28000, 26000, 42000, 21000],
-            name: "Actual Spending",
-          },
-        ],
-      },
-    ],
+  // 随机颜色
+  let randcolor = () => {
+    let r = 100 + ~~(Math.random() * 100);
+    let g = 135 + ~~(Math.random() * 100);
+    let b = 100 + ~~(Math.random() * 100);
+    return `rgb(${r}, ${g}, ${b})`;
   };
-  renderChart();
-});
-// 在这里定义渲染图表的函数
-function renderChart() {
-  // 确保 option 有值后再渲染图表
-  if (option) {
-    // 在这里执行渲染图表的操作
-    const chart = echarts.init(document.getElementById("main"));
-    chart.setOption(option);
+
+  onMounted(async () => {
+    const { data } = await get9Data();
+    charData.value = mapToValueMap9(data.data);
+
+    console.log(charData.value);
+
+    option = {
+      series: [
+        {
+          type: "wordCloud",
+          //maskImage: maskImage,
+          sizeRange: [15, 80],
+          rotationRange: [0, 0],
+          rotationStep: 45,
+          gridSize: 10,
+          shape: "pentagon",
+          width: "100%",
+          height: "50%",
+          textStyle: {
+            color: (params) => {
+              return randcolor();
+            },
+            emphasis: {
+              shadowBlur: 10,
+              shadowColor: "#333",
+            },
+          },
+          data: proxyToArray(charData.value),
+        },
+      ],
+    };
+    renderChart();
+  });
+
+  // 在这里定义渲染图表的函数
+  function renderChart() {
+    // 确保 option 有值后再渲染图表
+    if (option) {
+      // 在这里执行渲染图表的操作
+      const chart = echarts.init(document.getElementById("main"));
+      chart.setOption(option);
+    }
   }
-}
-</script>
+  </script>
+  <style scoped>
+  #main {
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  }
+  .typing {
+    font-size: 30px;
+    font-weight: 600;
+    color: #409eff;
+    margin-top: -200px;
+    margin-left: 50px;
+  }
+  </style>

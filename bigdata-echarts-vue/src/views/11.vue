@@ -6,7 +6,7 @@
   <v-chart class="chart" v-if="option" :option="option" />
 
   <vuetyped
-    :strings="['11. 分析专利授权的权利要求数量分布情况']"
+    :strings="['12. 分析引用其他专利的次数分布']"
     :loop="false"
     :smart-backspace="true"
   >
@@ -22,8 +22,8 @@ import * as echarts from "echarts/core";
 import VChart, { THEME_KEY } from "vue-echarts";
 import { provide, ref, onMounted } from "vue";
 
-import { get11Data } from "../api/api.js";
-import { mapToValueMap11, proxyToArray } from "../utils/utils.js";
+import { get12Data } from "../api/api.js";
+import { mapToValueMap12, proxyToArray } from "../utils/utils.js";
 
 var option;
 
@@ -31,63 +31,19 @@ const charData = ref([]);
 provide(THEME_KEY, "light");
 
 onMounted(async () => {
-  const { data } = await get11Data();
-  charData.value = mapToValueMap11(data.data);
+  const { data } = await get12Data();
+  charData.value = mapToValueMap12(data.data);
 
   console.log(charData.value);
 
   option = {
-    tooltip: {
-      trigger: "item",
-    },
-    legend: {
-      top: "5%",
-      left: "center",
-      // doesn't perfectly work with our tricks, disable it
-      selectedMode: false,
-    },
+    xAxis: {},
+    yAxis: {},
     series: [
       {
-        name: "Access From",
-        type: "pie",
-        radius: ["40%", "70%"],
-        center: ["50%", "70%"],
-        // adjust the start angle
-        startAngle: 180,
-        label: {
-          show: true,
-          formatter(param) {
-            // correct the percentage
-            return param.name + " (" + param.percent * 2 + "%)";
-          },
-        },
-        data: [
-          //   proxyToArray(charData.value),
-
-          { name: null, value: 1517 },
-
-          { name: "1", value: 16 },
-
-          { name: "2", value: 20 },
-
-          { name: "3", value: 28 },
-
-          { name: "4+", value: 1419 },
-          {
-            // make an record to fill the bottom 50%
-            value: 1517 + 16 + 20 + 28 + 1419,
-            itemStyle: {
-              // stop the chart from rendering this piece
-              color: "none",
-              decal: {
-                symbol: "none",
-              },
-            },
-            label: {
-              show: false,
-            },
-          },
-        ],
+        symbolSize: 10,
+        data: proxyToArray(charData.value),
+        type: "scatter",
       },
     ],
   };

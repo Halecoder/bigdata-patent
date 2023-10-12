@@ -5,7 +5,7 @@ import echart from '../views/echart.vue'
 const routes = [];
 
 // 循环从 '1' 到 '13'，生成路由配置
-for (let i = 1; i <= 13; i++) {
+for (let i = 1; i <= 12; i++) {
   routes.push({
     path: `/${i}`,
     name: `${i}`,
