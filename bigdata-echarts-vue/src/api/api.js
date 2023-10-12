@@ -32,10 +32,22 @@ export function get8Data() {
     return request('/8', {}, 'GET')
 }
 
+export function get9Data() {
+    return request('/9', {}, 'GET')
+}
+
+export function get10Data() {
+    return request('/10', {}, 'GET')
+}
+
 export function get11Data() {
     return request('/11', {}, 'GET')
 }
 
 export function get12Data() {
     return request('/12', {}, 'GET')
+}
+
+export function get14Data() {
+    return request('/14', {}, 'GET')
 }

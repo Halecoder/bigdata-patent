@@ -83,6 +83,32 @@ export function mapToValueMap7(data){
   return transformedData;
 }
 
+//取出data下各个map集合，转为value与name的map集合
+export function mapToValueMap9(data){
+
+  const transformedData = data.map(item => {
+    return {
+      name: item.patentHolder,
+      value: item.patentCount
+    };
+  });
+
+  return transformedData;
+}
+
+//取出data下各个map集合，转为value与name的map集合
+export function mapToValueMap10(data){
+
+  const transformedData = data.map(item => {
+    return {
+      name: item.patentHolder,
+      value: item.patentCount
+    };
+  });
+
+  return transformedData;
+}
+
 
 //取出data下各个map集合，转为value与name的map集合
 export function mapToValueMap11(data){
@@ -102,6 +128,18 @@ export function mapToValueMap12(data){
 
   const transformedData = data.map(item => {
     return [item.citationCount, item.patentCount];
+  });
+
+  return transformedData;
+}
+
+export function mapToValueMap14(data){
+
+  const transformedData = data.map(item => {
+    return {
+      name: item.eventType,
+      value: item.patentCount
+    };
   });
 
   return transformedData;
